@@ -2,3 +2,6 @@ streamlit
 altair
 numpy
 pandas
+matplotlib.pyplot
+matplotlib.dates
+matplotlib
