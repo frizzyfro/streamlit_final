@@ -1,9 +1,6 @@
 import streamlit as st
-import random
 import altair as alt
-import numpy as np
 import pandas as pd
-from numpy.random import randint
 
 data = pd.read_csv('jeff_jackson.csv')
 
