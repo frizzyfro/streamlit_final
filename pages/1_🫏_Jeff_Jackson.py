@@ -60,13 +60,14 @@ with tab2:
     with col3:
         st.metric('Median Contributions', '{:.2f}'.format(median))
 
-    
+    # Year filter with checkboxes
+
     # Selector for entity_type_desc
     entity_type = st.selectbox('Select Entity Type', data['entity_type_desc'].unique())
     # Selector for year
 
     # Filter data based on selected entity type
-    filtered_data = data[data['entity_type_desc'] == entity_type]
+    filtered_data = data[data['entity_type_desc'] == entity_type] 
 
     # Checkbox for toggling running totals
     show_running_totals = st.checkbox('Show Running Totals', value=False)
@@ -80,9 +81,12 @@ with tab2:
         display_column = 'contribution_receipt_amount'
 
     # Aggregate data for line chart
+    
     grouped_data = (filtered_data.groupby('contribution_receipt_date')[display_column]
                     .sum()
                     .reset_index())
+    
+
 
     # Line chart
     line_chart = alt.Chart(grouped_data).mark_line(point=True).encode(
@@ -108,14 +112,35 @@ with tab2:
 
     st.table(top_contributors)
 
-    with tab2:
+with tab2:
 
         st.header("Donations per State")
 
        
-'''
-    with tab3:
-        st.header("Largest Donors")
 
+with tab3:
+    st.header("Largest Donors")
+    def find_max_contributor(data):
+        # Find the contributor with the max value in the specified column
+        max_contributor = data.loc[data['contribution_receipt_amount'].idxmax()]['contributor_name']
+        max_value = data['contribution_receipt_amount'].max()
+        max_entity = data.loc[data['contribution_receipt_amount'].idxmax()]['entity_type_desc']
+        return max_contributor, max_value, max_entity
 
-'''
+    # Calculate total contributions
+    max_contributor, max_value, max_entity = find_max_contributor(data)
+
+    # Display the result using Streamlit
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown(f"<h2 style='text-align:center; font-size:20px;'>Largest Contributor</h2>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align:center; font-size:18px;'>{max_contributor}</p>", unsafe_allow_html=True)
+
+    with col2:
+        st.markdown(f"<h2 style='text-align:center; font-size:20px;'>Contribution Amount</h2>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align:center; font-size:18px;'>{max_value:.2f}</p>", unsafe_allow_html=True)
+
+    with col3:
+        st.markdown(f"<h2 style='text-align:center; font-size:20px;'>Contributor Type</h2>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align:center; font-size:18px;'>{max_entity}</p>", unsafe_allow_html=True)
