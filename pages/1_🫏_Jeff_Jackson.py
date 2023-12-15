@@ -7,8 +7,6 @@ import statistics
 
 data = pd.read_csv('jeff_jackson.csv')
 
-
-
 # Data preparation
 data['contribution_receipt_date'] = pd.to_datetime(data['contribution_receipt_date'], errors='coerce')
 data['contribution_receipt_amount'] = pd.to_numeric(data['contribution_receipt_amount'], errors='coerce')
@@ -19,13 +17,20 @@ st.set_page_config(
     page_icon="🫏",
 )
 
-tab1, tab2, tab3 = st.tabs(["What about him?", "Contributions", "Love"])
-#, "Donations by State", "Largest Donors"])
+st.markdown("""
+    <style>
+    .font {
+        font-size:30px;   # You can adjust the size as needed
+    }
+    </style>
+    <div class='font'>
+        Jeff Jackson 🫏
+    </div>
+    """, unsafe_allow_html=True)
 
 
+tab1, tab2 = st.tabs(["Contributions", "Largest Donors"])
 with tab1:
-    "hello"
-with tab2:
     def calculate_total_contributions(data):
         total_contributions = sum(data)
         return total_contributions
@@ -105,27 +110,31 @@ with tab2:
     top_contributors = (filtered_data.groupby('contributor_name')['contribution_receipt_amount']
                         .sum()
                         .sort_values(ascending=False)
-                        .head(10)
+                        .head(5)
                         .reset_index())
 
-    st.header('Top 10 Contributors', divider='rainbow')
+    st.header('Top 5 Contributors by Entity', divider='rainbow')
 
     st.table(top_contributors)
 
+      
+
 with tab2:
-
-        st.header("Donations per State")
-
-       
-
-with tab3:
     st.header("Largest Donors")
     def find_max_contributor(data):
-        # Find the contributor with the max value in the specified column
-        max_contributor = data.loc[data['contribution_receipt_amount'].idxmax()]['contributor_name']
-        max_value = data['contribution_receipt_amount'].max()
-        max_entity = data.loc[data['contribution_receipt_amount'].idxmax()]['entity_type_desc']
+        # Ensure 'contribution_receipt_amount' is a numeric type
+        data['contribution_receipt_amount'] = pd.to_numeric(data['contribution_receipt_amount'], errors='coerce')
+
+        # Find the index of the max contribution
+        idx_max_contribution = data['contribution_receipt_amount'].idxmax()
+
+        # Retrieve the contributor with the max contribution
+        max_contributor = data.loc[idx_max_contribution, 'contributor_name']
+        max_value = data.loc[idx_max_contribution, 'contribution_receipt_amount']
+        max_entity = data.loc[idx_max_contribution, 'entity_type_desc']
+
         return max_contributor, max_value, max_entity
+
 
     # Calculate total contributions
     max_contributor, max_value, max_entity = find_max_contributor(data)
@@ -144,3 +153,24 @@ with tab3:
     with col3:
         st.markdown(f"<h2 style='text-align:center; font-size:20px;'>Contributor Type</h2>", unsafe_allow_html=True)
         st.markdown(f"<p style='text-align:center; font-size:18px;'>{max_entity}</p>", unsafe_allow_html=True)
+
+    
+        # Aggregate data for top contributors
+    top_contributors = (data.groupby(['contributor_name', 'entity_type_desc'])
+                        .agg(total_contribution=('contribution_receipt_amount', 'sum'))
+                        .reset_index()
+                        .sort_values(by='total_contribution', ascending=False)
+                        .head(10))  # Adjust number as needed
+
+    # Bar chart
+    chart = alt.Chart(top_contributors).mark_bar().encode(
+        x=alt.X('total_contribution:Q', title='Total Contribution'),
+        y=alt.Y('contributor_name:N', title='Contributor Name', sort='-x'),
+        color='entity_type_desc:N'
+    ).properties(
+        title='Top Contributions by Contributor',
+        width=800,
+        height=700
+    )
+
+    chart

@@ -10,7 +10,16 @@ st.set_page_config(
     page_icon="⚖️",
 )
 
-st.write("# Candidate Information: ⚖️")
+st.markdown("""
+    <style>
+    .font {
+        font-size:30px;   # You can adjust the size as needed
+    }
+    </style>
+    <div class='font'>
+        Comparing Candidates ⚖️
+    </div>
+    """, unsafe_allow_html=True)
 
 st.sidebar.success("Click on different candidates above")
 
@@ -74,6 +83,8 @@ chart = alt.Chart(agg_data).mark_bar().encode(
 chart
 
 
+# ... [previous code remains the same]
+
 # Aggregating the data and getting the top 10 states for each dataset
 agg_data = combined_data.groupby(['contributor_state', 'Dataset']).agg(
     total_contribution=('contribution_receipt_amount', 'sum')
@@ -88,41 +99,17 @@ top_states_data = (agg_data.sort_values(['Dataset', 'total_contribution'], ascen
 chart = alt.Chart(top_states_data).mark_bar().encode(
     y=alt.Y('contributor_state:N', title='State'),  # y-axis shows states
     x=alt.X('total_contribution:Q', title='Total Contribution Amount'),  # x-axis shows summed contribution amount
-    color='Dataset:N',  # Color encoding for different datasets
-    column='Dataset:N',  # Place bars from different datasets next to each other
+    color=alt.Color('Dataset:N', scale=alt.Scale(  # N indicates nominal (categorical) data
+        domain=['Jeff Jackson', 'Dan Bishop'],
+        range=['blue', 'red'])
+    ),
     tooltip=[alt.Tooltip('contributor_state:N', title='State'),
              alt.Tooltip('total_contribution:Q', title='Total Contribution'),
              alt.Tooltip('Dataset:N', title='Dataset')]
 ).properties(
     title='Top 10 Contributions by State for Each Dataset'
-)
-
-# Display the chart
-chart
-
-
-# # Aggregating the data
-agg_data = combined_data.groupby(['contributor_state', 'Dataset']).agg(
-    total_contribution=('contribution_receipt_amount', 'sum')
-).reset_index()
-
-# Getting the top 10 states for each dataset
-top_states_dataset1 = agg_data[agg_data['Dataset'] == 'Dataset 1'].nlargest(10, 'total_contribution')
-top_states_dataset2 = agg_data[agg_data['Dataset'] == 'Dataset 2'].nlargest(10, 'total_contribution')
-
-# Combine top states from both datasets
-top_states_combined = pd.concat([top_states_dataset1, top_states_dataset2])
-
-# Creating a horizontal bar chart
-chart = alt.Chart(top_states_combined).mark_bar().encode(
-    y=alt.Y('contributor_state:N', title='State'),  # y-axis shows states
-    x=alt.X('total_contribution:Q', title='Total Contribution Amount'),  # x-axis shows summed contribution amount
-    color='Dataset:N',  # Color encoding for different datasets
-    tooltip=[alt.Tooltip('contributor_state:N', title='State'),
-             alt.Tooltip('total_contribution:Q', title='Total Contribution'),
-             alt.Tooltip('Dataset:N', title='Dataset')]
-).properties(
-    title='Top 10 Contributions by State for Each Dataset'
+).facet(
+    column='Dataset:N'
 )
 
 # Display the chart
