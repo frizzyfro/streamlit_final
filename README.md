@@ -2,6 +2,7 @@
 
 
 ##[Introduction:]
+<h2 style="font-size:1.5em;">Itroductions:</h2>
 
 Analyzing campaign spending for the North Carolina Attorney General election in 2024 is vital. It allows for a deeper understanding of donor influence on a candidate's platform and decisions both during the campaign and potentially throughout their tenure. Local elections are crucial; the officials elected can significantly affect community life through their policymaking and governance, underscoring the importance of informed voting at the local level. Active civic participation is pivotal for community growth. Fulfilling one's civic duties as a U.S. citizen, including voting, enables individuals to assert their voice, ensuring that local leadership authentically represents the community's diversity and collective interests.
 
